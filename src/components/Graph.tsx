@@ -12,6 +12,7 @@ interface GraphProps {
     yStep: number;
     interval: number;
     displayTime: number;
+    numTicks: number;
 }
 
 const roundUp = (value: number, step: number) => Math.ceil(value / step) * step;
@@ -35,31 +36,41 @@ const GenerateYTicks = (min: number, max: number, step: number) => {
     return ticks;
 }
 
-const GenerateXTicks = (data: GraphPoint[]): number[] => {
+const GenerateXTicks = (data: GraphPoint[], numTicks: number, displayTime: number): number[] => {
     if (data.length === 0) return [];
+    if (data.length === 1) return [data[0].time.getTime()];
 
     const newest = data[data.length - 1].time.getTime();
     const oldest = data[0].time.getTime();
+    const timeRange = newest - oldest;
+    const tickInterval = (displayTime / (numTicks - 1)) * 1000
+    if (timeRange < tickInterval) {
+        return [oldest, newest];
+    }
 
     const ticks = [oldest];
     
-    // Add intermediate ticks only if they're within the data range
-    const tick90 = newest - 90000;
-    const tick60 = newest - 60000;
-    const tick30 = newest - 30000;
+    // Generate intermediate ticks working backwards from newest in 30 second increments
+    // numTicks includes oldest and newest, so we need (numTicks - 2) intermediate ticks    
+    for (let i = numTicks - 2; i >= 1; i--) {
+        const tickTime = newest - (i * tickInterval);
+        if (tickTime > oldest && !ticks.includes(tickTime)) {
+            ticks.push(tickTime);
+        }
+    }
     
-    if (tick90 > oldest) ticks.push(tick90);
-    if (tick60 > oldest) ticks.push(tick60);
-    if (tick30 > oldest) ticks.push(tick30);
-    
-    ticks.push(newest);
+    // Add newest
+    if (!ticks.includes(newest)) {
+        ticks.push(newest);
+    }
 
-    return ticks;
+    // Remove duplicates and sort (just to be extra safe)
+    return Array.from(new Set(ticks)).sort((a, b) => a - b);
 };
 
-export function Graph({label, data, yPadding, yStep, interval, displayTime}: GraphProps) {
+export function Graph({label, data, yPadding, yStep, interval, displayTime, numTicks}: GraphProps) {
     const numPoints = displayTime / interval;
-    data = data.slice(-numPoints);
+    data = data.slice(-(numPoints + 1));
     
     if (data.length === 0) {
         return <div><h3>{label}</h3><p>No data available</p></div>;
@@ -72,20 +83,23 @@ export function Graph({label, data, yPadding, yStep, interval, displayTime}: Gra
         value: point.value
     }));
     
-    const xTicks = GenerateXTicks(data);
+    const xTicks = GenerateXTicks(data, numTicks, displayTime);
     const oldest = data[0].time.getTime();
     const newest = data[data.length - 1].time.getTime();
     
     return (
         <div>
             <h3>{label}</h3>
-            <LineChart width={600} height={200} data={chartData} margin={{ top: 5, right: 40, bottom: 5, left: 5 }}>
+            <LineChart width={600} height={200} data={chartData} 
+            margin={{ top: 5, right: 40, bottom: 5, left: 5 }}>
                 <XAxis 
+                    key={`${oldest}-${newest}`}
                     dataKey="time"
                     type="number"
                     domain={[oldest, newest]}
                     ticks={xTicks}
                     tickFormatter={t => new Date(t).toLocaleTimeString([], {hour12: false})}
+                    interval={0}
                 />
                 <YAxis 
                     domain={yDomain} 
@@ -94,7 +108,7 @@ export function Graph({label, data, yPadding, yStep, interval, displayTime}: Gra
                     ticks={GenerateYTicks(yDomain[0], yDomain[1], yStep)}
                 />
                 <Tooltip labelFormatter={t => new Date(t).toLocaleTimeString([], {hour12: false})}/>
-                <Line type="monotone" dataKey="value" stroke="#8884d8" dot={false} />
+                <Line type="monotone" dataKey="value" stroke="#8884d8" dot={false} strokeWidth={2}/>
                 <CartesianGrid stroke="#ccc" />
             </LineChart>
         </div>
