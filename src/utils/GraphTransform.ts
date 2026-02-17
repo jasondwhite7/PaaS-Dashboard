@@ -1,5 +1,5 @@
-import { ScidSample } from "../hooks/ScidData";
-import { GraphPoint } from "../components/Graph";
+import { ScidSample } from "../index/types"; 
+import { GraphPoint } from "../index/types"; 
 
 export default function MapDataToGraph(history: ScidSample[], 
     selector: (sample: ScidSample) => number):GraphPoint[] {
