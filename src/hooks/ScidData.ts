@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ScidData, ScidSample, ErrorLog } from "../index/types";
+import { ScidData, ScidSample, ErrorLog } from "../types";
 
 
 //function that returns the data history and the time at which it updated

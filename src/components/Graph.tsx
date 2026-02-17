@@ -1,5 +1,5 @@
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
-import { GraphPoint } from "../index/types";
+import { GraphPoint } from "../types";
 import { getYDomain, generateXTicks, generateYTicks } from "../utils/GraphHelpers";
 
 interface GraphProps {
@@ -56,7 +56,7 @@ export function Graph({label, data, yPadding, yStep, interval, displayTime, numT
                     interval={0}
                     tick={{dy:10}}
                     strokeDasharray="3 3"
-                    stroke="#ccc"   
+                    stroke="var(--text)"
                     strokeOpacity={0.2}
                 />
                 <YAxis 
@@ -66,19 +66,19 @@ export function Graph({label, data, yPadding, yStep, interval, displayTime, numT
                     ticks={generateYTicks(yDomain[0], yDomain[1], yStep)}
                     tick={{dx:-10}}
                     strokeDasharray="3 3"
-                    stroke="#ccc"
+                    stroke="var(--text)"
                     strokeOpacity={0.2}
                 />
                 <Tooltip 
                 labelFormatter={t => new Date(t).toLocaleTimeString([], {hour12: false})}
                 formatter={(value) => value ? `${Number(value).toFixed(2)} ${unit}` : 'N/A'}
                 contentStyle={{
-                    backgroundColor: "#2a2a2a",
-                    border: '1px solid #444',
+                    backgroundColor: "var(--background2",
+                    border: '1px solid "var(--background4"',
                     borderRadius: "8px"
                 }}/>
                 <Line type="monotone" dataKey="value" stroke={stroke} dot={false} strokeWidth={2}/>
-                <CartesianGrid stroke="#ccc" strokeDasharray="3 3" strokeOpacity={0.5}/>
+                <CartesianGrid stroke="var(--text)" strokeDasharray="3 3" strokeOpacity={0.5}/>
             </LineChart>
         </div>
     );

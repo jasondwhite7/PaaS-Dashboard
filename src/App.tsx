@@ -1,19 +1,17 @@
 import GetScidData from "./hooks/ScidData";
 import Clock from "./components/Clock";
-import {Graph} from "./components/Graph";
-import MapDataToGraph from "./utils/GraphTransform";
-import  "./App.css"
+import { useState } from "react";
+import EnvironmentTab from "./tabs/Environment";
+import "./App.css"
 
-//main app function
 export default function App() {
-  //get the data from the scd and name it scd
+  const [activeTab, setActiveTab] = useState('environment');
+
   const {history: scd, errors: scdErrors, clearError: scdClearError, clearAllErrors: scdClearAllErrors} = GetScidData();
 
-  const tempData = MapDataToGraph(scd, s => s.temperature);
-  const humidData = MapDataToGraph(scd, s => s.humidity);
-  const co2Data = MapDataToGraph(scd, s => s.co2);
   return (
-    <div>
+    <div> 
+      {/* Header */}
       <div className="header">
         <div className="logo-section">
           <img src="/purdue-logo.png" alt="logo" width={83} height={45}/>
@@ -22,6 +20,33 @@ export default function App() {
       </div>
       <Clock />
       </div>
+      {/* Header */}
+
+      {/* Tab Navigation */}
+      <div className="tab-nav">
+        <button className={activeTab === 'environment' ? 'tab-btn active' : 'tab-btn'}
+        onClick={() => setActiveTab('environment')}>
+          Environment
+        </button>
+        <button className={activeTab === 'battery' ? 'tab-btn active' : 'tab-btn'}
+          onClick={() => setActiveTab('battery')}>
+            Batteries
+          </button>
+        <button className={activeTab === 'solar' ? 'tab-btn active' : 'tab-btn'}
+        onClick={() => setActiveTab('solar')}>
+          Solar Panel
+        </button>
+        <button className={activeTab === 'bio' ? 'tab-btn active' : 'tab-btn'}
+          onClick={() => setActiveTab('bio')}>
+          Bio-Systems
+        </button>
+        <button className={activeTab === 'lights' ? 'tab-btn active' : 'tab-btn'}
+          onClick={() => setActiveTab('lights')}>
+          Lights
+        </button>
+      </div>
+      {/* Tab Navigation */}
+
       {/* Show error messages */}
       {scdErrors.length > 0 && (
         <div className="error-section">
@@ -38,21 +63,33 @@ export default function App() {
           ))}
         </div>
       )}
+      {/* Show error messages */}
+
       {/*if data exists create graphs, if not, write loading...*/}
-      {scd ? (
-        <div className="graphs-container">
-          <div className="graph-card">
-            <Graph label="Temperature (°C)" data={tempData} yPadding={2} yStep={2} interval={5} displayTime={120} numTicks={4} stroke="#FF0000" unit="°C"/>
-          </div>
-          <div className="graph-card">
-            <Graph label="Humidity (%)" data={humidData} yPadding={2} yStep={2} interval={5} displayTime={120} numTicks={4} stroke="#0000FF" unit="%"/>
-          </div>
-          <div className="graph-card">
-          <Graph label="CO2 (ppm)" data={co2Data} yPadding={25} yStep={25} interval={5} displayTime={120} numTicks={4} stroke="#008000" unit="ppm"/>
-          </div>
+      {activeTab === 'environment' && scd && (
+        <EnvironmentTab scd={scd}/>
+      )}
+
+      {activeTab === 'battery' && (
+        <div>
+          <p>Batteries Coming Soon!</p>
         </div>
-      ) : (
-        <p>Loading...</p> 
+      )}
+
+      {activeTab === 'solar' && (
+        <div>
+          <p>Solar Panels Coming Soon!</p>
+        </div>
+      )}
+      {activeTab === 'bio' && (
+        <div>
+          <p>Bio-Systems Coming Soon!</p>
+        </div>
+      )}
+      {activeTab === 'lights' && (
+        <div>
+          <p>Lights Coming Soon!</p>
+        </div>
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import { GraphPoint } from "../index/types";
+import { GraphPoint } from "../types";
 
 export const roundUp = (value: number, step: number) => Math.ceil(value / step) * step;
 export const roundDown = (value: number, step: number) => Math.floor(value / step) * step;
