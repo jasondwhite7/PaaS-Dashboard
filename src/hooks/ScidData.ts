@@ -13,7 +13,7 @@ export default function GetScidData() {
         const interval = setInterval(async () => {
             try {
                 //res - response from the Arduino's IP
-                const res = await fetch("http://100.69.172.98", {
+                const res = await fetch("http://100.69.161.249", {
                     signal: AbortSignal.timeout(4000) // 4 second timeout
                 });
                 

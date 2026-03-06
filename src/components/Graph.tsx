@@ -36,8 +36,8 @@ export function Graph({label, data, yPadding, yStep, interval, displayTime, numT
     return (
         <div>
             <h3>
-                <span>{label}</span>
-                <span>Current: {data[data.length - 1].value.toFixed(2)} {unit}</span>
+                <span style={{color: stroke}}>{label}</span>
+                <span style={{color: stroke}}>Current: {data[data.length - 1].value.toFixed(2)} {unit}</span>
             </h3>
             <LineChart width={400} height={200} data={chartData} 
             margin={{ top: 0, right: 20, bottom: 0, left: 15 }}>

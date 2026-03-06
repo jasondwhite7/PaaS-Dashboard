@@ -8,7 +8,7 @@
   --green: #8cb369;
   --blue: #0090c1;
   --orange: #ef8354;
-  --lilac: #e8d7ff;
+  --lilac: #caabf1;
 }
 
 button {
@@ -50,7 +50,7 @@ body {
 }
 
 .graph-card {
-  background-color: #2a2a2a;
+  background-color: var(--background2);
   padding: 20px;
   border-radius: 20px;
 }
@@ -66,17 +66,32 @@ body {
 }
 
 .error-item {
-  color: red;
+  color: var(--orange);
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 5px;
 }
 
+.error-summary-btn {
+  background-color: var(--background3);
+  color: var(--text);
+  border: none;
+  padding: 8px;
+  margin: 10px 0px 0px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.error-list {
+  margin: 10px 0px 0px 20px;
+}
+
 .dismiss-btn {
   background-color: var(--background2);
   color: var(--text);
-  border: 1px solid #555;
+  border: 1px solid var(--background3);
   padding: 6px 12px;
   border-radius: 4px;
   cursor: pointer;
@@ -109,7 +124,7 @@ body {
 }
 
 .tab-btn:hover {
-  background-color: #4a4a4a;
+  background-color: var(--background4);
 }
 
 .tab-btn.active {
@@ -123,7 +138,7 @@ body {
   color: var(--text);
   border: none;
   padding: 8px;
-  margin: 10px 0px 10px 20px;
+  margin: 10px 0px 0px 20px;
   border-radius: 8px;
   cursor: pointer;
   font-family: inherit;
@@ -142,12 +157,13 @@ body {
   display: grid;
   grid-template-rows: repeat(3, auto);
   grid-auto-flow: column;
-  grid-auto-columns: max-content; /* Column width fits the longest label */
   gap: 8px;
   padding: 10px;
+  margin: 10px 0px 0px 20px;
   background-color: var(--background2);
   border: 1px solid var(--background3);
   border-radius: 8px;
+  width: fit-content;
 }
 
 /* Hide the real checkbox */

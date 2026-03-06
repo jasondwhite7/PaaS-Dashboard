@@ -13,9 +13,9 @@ export default function EnvironmentTab({scd}: EnvironmentalTabProps) {
   const co2Data = MapDataToGraph(scd, s => s.co2);
   
   const graphs = [
-    { key: 'temp', label: 'Temperature (°C)', data: tempData, yPadding: 2, yStep: 2, stroke: 'var(--pink)', unit: '°C' },
-    { key: 'humidity', label: 'Humidity (%)', data: humidData, yPadding: 2, yStep: 2, stroke: 'var(--blue)', unit: '%' },
-    { key: 'co2', label: 'CO2 (ppm)', data: co2Data, yPadding: 25, yStep: 25, stroke: 'var(--green)', unit: 'ppm' },
+    {key: 'temp', label: 'Temperature (°C)', data: tempData, yPadding: 2, yStep: 2, stroke: 'var(--pink)', unit: '°C'},
+    {key: 'humidity', label: 'Humidity (%)', data: humidData, yPadding: 2, yStep: 2, stroke: 'var(--blue)', unit: '%'},
+    {key: 'co2', label: 'CO2 (ppm)', data: co2Data, yPadding: 25, yStep: 25, stroke: 'var(--green)', unit: 'ppm'},
   ];
 
   const [visibleGraphs, setVisibleGraphs] = useState(

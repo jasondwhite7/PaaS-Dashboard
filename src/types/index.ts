@@ -18,3 +18,5 @@ export interface GraphPoint {
     time: Date;
     value: number;
 }
+
+export type TabKey = 'environment' | 'battery' | 'solar' | 'bio' | 'lights';
