@@ -2,6 +2,7 @@ import "./App.css"
 import {useState} from "react";
 import GetScidData from "./hooks/ScidData";
 import EnvironmentTab from "./tabs/Environment";
+import BatteryTab from "./tabs/Batteries";
 import ErrorLog from "./components/ErrorLog"
 import Tabs from "./components/Tabs";
 import {TabKey} from "./types";
@@ -15,7 +16,7 @@ export default function App() {
   
   const tabContent = {
     environment: <EnvironmentTab scd={scd} />,
-    battery: <div><p>Batteries Coming Soon!</p></div>,
+    battery: <BatteryTab/>,
     solar: <div><p>Solar Panels Coming Soon!</p></div>,
     bio: <div><p>Bio-Systems Coming Soon!</p></div>,
     lights: <div><p>Lights Coming Soon!</p></div>,
