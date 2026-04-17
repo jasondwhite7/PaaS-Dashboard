@@ -8,24 +8,11 @@ export default function BatteryTab() {
         {label: 'Dead', color: 'var(--pink)'}
     ];
 
-    const batteries = [
-        {number: 1, stroke: 'var(--green)'},
-        {number: 2, stroke: 'var(--blue)'},
-        {number: 3, stroke: 'var(--orange)'},
-        {number: 4, stroke: 'var(--pink)'},
-        {number: 5, stroke: 'var(--blue)'},
-        {number: 6, stroke: 'var(--green)'},
-        {number: 7, stroke: 'var(--green)'},
-        {number: 8, stroke: 'var(--green)'},
-        {number: 9, stroke: 'var(--green)'},
-        {number: 10, stroke: 'var(--orange)'},
-        {number: 11, stroke: 'var(--pink)'},
-        {number: 12, stroke: 'var(--pink)'},
-        {number: 13, stroke: 'var(--orange)'},
-        {number: 14, stroke: 'var(--green)'},
-        {number: 15, stroke: 'var(--green)'},
-        {number: 16, stroke: 'var(--green)'}
-    ];
+    const batteries = Array.from({length: 16}, (_, i) => ({
+        number: i + 1,
+        stroke: 'var(--green)',
+        percentage: Math.floor(Math.random() * 100)
+    }));
 
     return (
         <div>
@@ -46,7 +33,7 @@ export default function BatteryTab() {
             <div className="batteries-container">
                 <div className="batteries">
                     {batteries.map((item, index) => (
-                        <Battery key={index} number={index + 1} stroke={item.stroke}/>
+                        <Battery key={index} number={index + 1} stroke={item.stroke} width={item.percentage}/>
                     ))}
                 </div>
             </div>

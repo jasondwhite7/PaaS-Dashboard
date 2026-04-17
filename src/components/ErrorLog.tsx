@@ -40,7 +40,7 @@ export default function ErrorLog({errors, clearError, clearAllErrors}: ErrorLogP
                                     <span>[{error.timestamp.toLocaleTimeString()}] {error.message}</span>
                                     <button className="dismiss-btn" onClick={() => {
                                         clearError(index);
-                                        if (errors.length === 0) {
+                                        if (errors.length === 1) {
                                             setErrorsExpanded(false);
                                         }
                                     }}>

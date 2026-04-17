@@ -8,8 +8,15 @@ export const getYDomain = (data: GraphPoint[], padding: number, step: number) =>
         return [0, padding];
     }
     const points = data.map(d => d.value);
-    const min = roundUp(Math.min(...points) - padding, step);
-    const max = roundDown(Math.max(...points) + padding, step);
+    // Remove padding before rounding to keep the chart tight
+    const min = roundDown(Math.min(...points), step);
+    const max = roundUp(Math.max(...points), step);
+    
+    // If min and max are the same (flat line), add the original padding range
+    if (min === max) {
+        return [min - step, max + step];
+    }
+    
     return [min, max];
 }
 

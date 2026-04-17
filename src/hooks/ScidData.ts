@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ScidData, ScidSample, ErrorLog } from "../types";
+import { ScidSample, ErrorLog } from "../types";
 
 
 //function that returns the data history and the time at which it updated
@@ -9,50 +9,53 @@ export default function GetScidData() {
 
     //useEffect because this runs after the component renders
     useEffect(() => {
-        //5 second interval
+        // Combined 5 second interval for all live updates
         const interval = setInterval(async () => {
+            // 1. Fetch live data (last 2 mins)
             try {
-                //res - response from the Arduino's IP
-                const res = await fetch("http://100.69.161.249", {
-                    signal: AbortSignal.timeout(4000) // 4 second timeout
-                });
-                
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
+                const res = await fetch("/api/data?range=2m");
+                if (res.ok) {
+                    const json = await res.json();
+                    setHistory(json.map((row: any) => ({
+                        temperature: row.temperature,
+                        humidity: row.humidity,
+                        co2: row.co2,
+                        timestamp: new Date(row.timestamp),
+                    })));
                 }
-                
-                const text = await res.text(); //get raw response first
-                
-                if (!text || text.trim() === '') {
-                    throw new Error('Empty response from Arduino');
-                }
-                
-                const json: ScidData = JSON.parse(text); //parse manually
-                
-                // Validate the data has required fields
-                if (typeof json.temperature !== 'number' || 
-                    typeof json.humidity !== 'number' || 
-                    typeof json.co2 !== 'number') {
-                    throw new Error('Invalid data format from Arduino');
-                }
-                
-                setHistory(prev => [...prev, {...json, timestamp: new Date()}]); //add the current data and time
             } catch (err) {
                 console.error('Failed to fetch sensor data:', err);
-                const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-                setErrors(prev => [...prev, { message: errorMessage, timestamp: new Date() }]);
-                // Don't update history - just skip this data point
             }
-        }, 5000); // poll every 5 second
 
-        return () => clearInterval(interval); //unmount if needed
+            // 2. Fetch errors
+            try {
+                const res = await fetch("/api/errors");
+                if (res.ok) {
+                    const json = await res.json();
+                    setErrors(json.map((e: any) => ({
+                        message: e.message,
+                        timestamp: new Date(e.timestamp),
+                    })));
+                }
+            } catch {
+                //silently ignore error-fetch failures
+            }
+        }, 5000); // Poll strictly every 5 seconds
+
+        return () => clearInterval(interval); // cleanup on unmount
     }, []); 
     
     const clearError = (index: number) => {
+        //Tell the backend to clear this specific error
+        fetch(`/api/errors/clear/${index}`, { method: 'POST' });
         setErrors(prev => prev.filter((_, i) => i !== index));
     };
     
-    const clearAllErrors = () => setErrors([]);
+    const clearAllErrors = () => {
+        //Tell the backend to clear all errors
+        fetch('/api/errors/clear', { method: 'POST' });
+        setErrors([]);
+    };
 
     return {history, errors, clearError, clearAllErrors}; //return data history, last update, and error status
 }
