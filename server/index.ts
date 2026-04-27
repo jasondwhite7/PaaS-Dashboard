@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { initDatabase, insertReading, getRawData, getDownsampledData, getRowCount, closeDatabase } from './database';
+import { initDatabase, insertReading, getRawData, getDownsampledData, getRowCount, closeDatabase, getMaintenanceLogs, insertMaintenanceLog, clearMaintenanceLogs } from './database';
 
 const app = express();
 const PORT = 3001;
@@ -18,7 +18,7 @@ interface ErrorLog {
 let errors: ErrorLog[] = [];
 
 // ── Arduino Polling ─────────────────────────────────────────────────────
-const ARDUINO_URL = 'http://100.69.161.65';
+const ARDUINO_URL = 'http://172.20.152.159';
 const POLL_INTERVAL = 5000; // 5 seconds
 
 /**
@@ -135,6 +135,49 @@ app.post('/api/errors/clear/:index', (req, res) => {
     }
     errors.splice(index, 1);
     res.json({ success: true });
+});
+
+/**
+ * GET /api/logs
+ * Returns all maintenance logs for solar panels.
+ */
+app.get('/api/logs', (_req, res) => {
+    try {
+        const logs = getMaintenanceLogs();
+        res.json(logs);
+    } catch (err) {
+        console.error('Failed to get logs:', err);
+        res.status(500).json({ error: 'Failed to fetch logs' });
+    }
+});
+
+/**
+ * POST /api/logs
+ * Adds a new maintenance log.
+ */
+app.post('/api/logs', (req, res) => {
+    try {
+        const { panelName, date, technician, notes, problemFound } = req.body;
+        insertMaintenanceLog(panelName, date, technician, notes, problemFound);
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Failed to insert log:', err);
+        res.status(500).json({ error: 'Failed to save log' });
+    }
+});
+
+/**
+ * DELETE /api/logs
+ * Clears all maintenance logs (for testing).
+ */
+app.delete('/api/logs', (_req, res) => {
+    try {
+        clearMaintenanceLogs();
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Failed to clear logs:', err);
+        res.status(500).json({ error: 'Failed to clear logs' });
+    }
 });
 
 /**

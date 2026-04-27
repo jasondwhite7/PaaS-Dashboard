@@ -51,6 +51,17 @@ export function initDatabase(): void {
         CREATE INDEX IF NOT EXISTS idx_timestamp ON sensor_data (timestamp)
     `);
 
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS maintenance_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            panelName TEXT NOT NULL,
+            date TEXT NOT NULL,
+            technician TEXT NOT NULL,
+            notes TEXT,
+            problemFound INTEGER NOT NULL
+        )
+    `);
+
     console.log(`Database initialized at ${DB_PATH}`);
 }
 
@@ -69,6 +80,14 @@ export function insertReading(temperature: number, humidity: number, co2: number
         VALUES (?, ?, ?, ?)
     `);
     stmt.run(temperature, humidity, co2, new Date().toISOString());
+}
+
+export function insertMaintenanceLog(panelName: string, date: string, technician: string, notes: string, problemFound: boolean): void {
+    const stmt = db.prepare(`
+        INSERT INTO maintenance_logs (panelName, date, technician, notes, problemFound)
+        VALUES (?, ?, ?, ?, ?)
+    `);
+    stmt.run(panelName, date, technician, notes, problemFound ? 1 : 0);
 }
 
 // ── Query ───────────────────────────────────────────────────────────────
@@ -122,6 +141,23 @@ export function getDownsampledData(secondsAgo: number, bucketSeconds: number): S
         ORDER BY timestamp ASC
     `);
     return stmt.all(cutoff, bucketSeconds) as SensorRow[];
+}
+
+export function getMaintenanceLogs(): any[] {
+    const stmt = db.prepare(`
+        SELECT id, panelName, date, technician, notes, problemFound
+        FROM maintenance_logs
+        ORDER BY date DESC
+    `);
+    const rows = stmt.all() as any[];
+    return rows.map(row => ({
+        ...row,
+        problemFound: row.problemFound === 1
+    }));
+}
+
+export function clearMaintenanceLogs(): void {
+    db.exec('DELETE FROM maintenance_logs');
 }
 
 /**

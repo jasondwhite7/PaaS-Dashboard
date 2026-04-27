@@ -8,11 +8,25 @@ export default function BatteryTab() {
         {label: 'Dead', color: 'var(--pink)'}
     ];
 
-    const batteries = Array.from({length: 16}, (_, i) => ({
-        number: i + 1,
-        stroke: 'var(--green)',
-        percentage: Math.floor(Math.random() * 100)
-    }));
+    // Generate mock batteries on every render to simulate live incoming data
+    const batteries = Array.from({length: 16}, (_, i) => {
+        const percentage = Math.floor(Math.random() * 100);
+        
+        // Assign a random state to show off the visual design
+        let stroke = 'var(--green)'; // Default charging
+        if (percentage < 5) {
+            stroke = 'var(--pink)'; // Dead
+        } else {
+            const states = ['var(--green)', 'var(--blue)', 'var(--orange)'];
+            stroke = states[Math.floor(Math.random() * states.length)];
+        }
+
+        return {
+            number: i + 1,
+            stroke,
+            percentage
+        };
+    });
 
     return (
         <div>

@@ -31,3 +31,17 @@ export interface GraphPoint {
 export type TabKey = 'environment' | 'battery' | 'solar' | 'bio' | 'lights';
 
 export type TimeRangeKey = '2m' | '1h' | '6h' | '24h' | '7d';
+
+export interface MaintenanceLog {
+    panelName: string;
+    date: string;         // ISO date string (YYYY-MM-DD)
+    technician: string;   // Name of person who performed maintenance
+    notes: string;
+    problemFound: boolean; // Flag if maintenance found a problem
+}
+
+export interface SolarPanelData {
+    id: number;
+    name: string;
+    maintenanceLogs: MaintenanceLog[];
+}
