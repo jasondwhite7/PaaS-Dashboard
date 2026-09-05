@@ -18,7 +18,7 @@ interface ErrorLog {
 let errors: ErrorLog[] = [];
 
 // ── Arduino Polling ─────────────────────────────────────────────────────
-const ARDUINO_URL = 'http://172.20.152.159';
+const ARDUINO_URL = 'http://100.69.15.126';
 const POLL_INTERVAL = 5000; // 5 seconds
 
 /**
@@ -70,11 +70,11 @@ async function pollArduino(): Promise<void> {
 // Maps the time range keys to their query parameters.
 // bucketSeconds = 0 means "return raw data, no downsampling"
 const RANGE_CONFIG: Record<string, { seconds: number; bucketSeconds: number }> = {
-    '2m':  { seconds: 120,    bucketSeconds: 0 },     // raw data (24 points)
-    '1h':  { seconds: 3600,   bucketSeconds: 30 },    // avg per 30s → ~120 points
-    '6h':  { seconds: 21600,  bucketSeconds: 180 },   // avg per 3m → ~120 points
-    '24h': { seconds: 86400,  bucketSeconds: 600 },   // avg per 10m → ~144 points
-    '7d':  { seconds: 604800, bucketSeconds: 3600 },   // avg per 1h → ~168 points
+    '2m': { seconds: 120, bucketSeconds: 0 },     // raw data (24 points)
+    '1h': { seconds: 3600, bucketSeconds: 30 },    // avg per 30s → ~120 points
+    '6h': { seconds: 21600, bucketSeconds: 180 },   // avg per 3m → ~120 points
+    '24h': { seconds: 86400, bucketSeconds: 600 },   // avg per 10m → ~144 points
+    '7d': { seconds: 604800, bucketSeconds: 3600 },   // avg per 1h → ~168 points
 };
 
 // ── API Routes ──────────────────────────────────────────────────────────

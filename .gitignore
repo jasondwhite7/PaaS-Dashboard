@@ -27,3 +27,10 @@ yarn-error.log*
 
 # server build output
 /server/dist
+
+# Arduino / Embedded build outputs
+*.hex
+*.bin
+*.elf
+.vscode/arduino.json
+build/

@@ -14,7 +14,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('environment');
   
   const {history: scd, errors: scdErrors, clearError: scdClearError, clearAllErrors: scdClearAllErrors} = GetScidData();
-  
+
   const tabContent = {
     environment: <EnvironmentTab scd={scd} />,
     battery: <BatteryTab/>,
@@ -24,7 +24,7 @@ export default function App() {
   };
 
   return (
-    <div> 
+    <div>
       {/* Header */}
       <Header/>
 
