@@ -20,6 +20,7 @@ export default function GetScidData() {
                         temperature: row.temperature,
                         humidity: row.humidity,
                         co2: row.co2,
+                        o2: row.o2,
                         timestamp: new Date(row.timestamp),
                     })));
                 }
@@ -43,19 +44,19 @@ export default function GetScidData() {
         }, 5000); // Poll strictly every 5 seconds
 
         return () => clearInterval(interval); // cleanup on unmount
-    }, []); 
-    
+    }, []);
+
     const clearError = (index: number) => {
         //Tell the backend to clear this specific error
         fetch(`/api/errors/clear/${index}`, { method: 'POST' });
         setErrors(prev => prev.filter((_, i) => i !== index));
     };
-    
+
     const clearAllErrors = () => {
         //Tell the backend to clear all errors
         fetch('/api/errors/clear', { method: 'POST' });
         setErrors([]);
     };
 
-    return {history, errors, clearError, clearAllErrors}; //return data history, last update, and error status
+    return { history, errors, clearError, clearAllErrors }; //return data history, last update, and error status
 }

@@ -18,7 +18,7 @@ interface ErrorLog {
 let errors: ErrorLog[] = [];
 
 // ── Arduino Polling ─────────────────────────────────────────────────────
-const ARDUINO_URL = 'http://100.69.15.126';
+const ARDUINO_URL = 'http://100.69.1.146';
 const POLL_INTERVAL = 5000; // 5 seconds
 
 /**
@@ -57,7 +57,8 @@ async function pollArduino(): Promise<void> {
         }
 
         // Store in the database
-        insertReading(json.temperature, json.humidity, json.co2);
+        const o2 = typeof json.o2 === 'number' && !isNaN(json.o2) ? json.o2 : null;
+        insertReading(json.temperature, json.humidity, json.co2, o2);
 
     } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';

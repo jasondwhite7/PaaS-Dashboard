@@ -12,6 +12,7 @@ export interface SensorRow {
     temperature: number;
     humidity: number;
     co2: number;
+    o2: number;
     timestamp: string; // ISO 8601 string
 }
 
@@ -20,9 +21,9 @@ export interface SensorRow {
 /**
  * Initialize the database connection and create the table if it doesn't exist.
  * 
- * CREATE TABLE creates the "sensor_data" table with 5 columns:
+ * CREATE TABLE creates the "sensor_data" table:
  *   - id: auto-incrementing number (each row gets a unique ID)
- *   - temperature, humidity, co2: decimal numbers (REAL = floating point)
+ *   - temperature, humidity, co2, o2: decimal numbers (REAL = floating point)
  *   - timestamp: date/time stored as text in ISO 8601 format
  * 
  * "IF NOT EXISTS" means it only creates the table the first time.
@@ -41,9 +42,17 @@ export function initDatabase(): void {
             temperature REAL NOT NULL,
             humidity REAL NOT NULL,
             co2 REAL NOT NULL,
+            o2 REAL,
             timestamp TEXT NOT NULL
         )
     `);
+
+    // Migration: ensure o2 column exists in existing databases
+    const columns = db.pragma('table_info(sensor_data)') as { name: string }[];
+    const hasO2 = columns.some(col => col.name === 'o2');
+    if (!hasO2) {
+        db.exec('ALTER TABLE sensor_data ADD COLUMN o2 REAL');
+    }
 
     // Create an index on timestamp for faster time-range queries
     // Think of it like a book's index — helps find rows by date quickly
@@ -74,12 +83,12 @@ export function initDatabase(): void {
  * SQLite fills in the values safely (prevents SQL injection attacks).
  * .run() executes the statement with the given values.
  */
-export function insertReading(temperature: number, humidity: number, co2: number): void {
+export function insertReading(temperature: number, humidity: number, co2: number, o2: number | null): void {
     const stmt = db.prepare(`
-        INSERT INTO sensor_data (temperature, humidity, co2, timestamp)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO sensor_data (temperature, humidity, co2, o2, timestamp)
+        VALUES (?, ?, ?, ?, ?)
     `);
-    stmt.run(temperature, humidity, co2, new Date().toISOString());
+    stmt.run(temperature, humidity, co2, o2, new Date().toISOString());
 }
 
 export function insertMaintenanceLog(panelName: string, date: string, technician: string, notes: string, problemFound: boolean): void {
@@ -101,7 +110,7 @@ export function insertMaintenanceLog(panelName: string, date: string, technician
 export function getRawData(secondsAgo: number): SensorRow[] {
     const cutoff = new Date(Date.now() - secondsAgo * 1000).toISOString();
     const stmt = db.prepare(`
-        SELECT id, temperature, humidity, co2, timestamp
+        SELECT id, temperature, humidity, co2, o2, timestamp
         FROM sensor_data
         WHERE timestamp > ?
         ORDER BY timestamp ASC
@@ -134,6 +143,7 @@ export function getDownsampledData(secondsAgo: number, bucketSeconds: number): S
             AVG(temperature) as temperature,
             AVG(humidity) as humidity,
             AVG(co2) as co2,
+            AVG(o2) as o2,
             MIN(timestamp) as timestamp
         FROM sensor_data
         WHERE timestamp > ?

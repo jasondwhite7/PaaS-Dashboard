@@ -3,6 +3,7 @@ export interface ScidData {
     temperature: number;
     humidity: number;
     co2: number;
+    o2: number;
 }
 
 export interface ScidSample extends ScidData {
@@ -15,6 +16,7 @@ export interface SensorRow {
     temperature: number;
     humidity: number;
     co2: number;
+    o2: number;
     timestamp: string; // ISO 8601 string from SQLite
 }
 

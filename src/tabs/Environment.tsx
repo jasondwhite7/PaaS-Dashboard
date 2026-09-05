@@ -4,19 +4,20 @@ import { Graph } from "../components/Graph";
 import { useState } from "react";
 
 interface EnvironmentalTabProps {
-    scd: ScidSample[];
+  scd: ScidSample[];
 }
 
-export default function EnvironmentTab({scd}: EnvironmentalTabProps) {
+export default function EnvironmentTab({ scd }: EnvironmentalTabProps) {
   const tempData = MapDataToGraph(scd, s => s.temperature);
   const humidData = MapDataToGraph(scd, s => s.humidity);
   const co2Data = MapDataToGraph(scd, s => s.co2);
-  
+  const o2Data = MapDataToGraph(scd, s => s.o2);
+
   const graphs = [
-    {key: 'temp', label: 'Temperature (°C)', data: tempData, yPadding: 2, yStep: 2, stroke: 'var(--pink)', unit: '°C', dataSelector: (row: any) => row.temperature},
-    {key: 'humidity', label: 'Humidity (%)', data: humidData, yPadding: 2, yStep: 2, stroke: 'var(--blue)', unit: '%', dataSelector: (row: any) => row.humidity},
-    {key: 'co2', label: 'CO2 (ppm)', data: co2Data, yPadding: 25, yStep: 25, stroke: 'var(--green)', unit: 'ppm', dataSelector: (row: any) => row.co2},
-    {key: 'battery', label: 'Battery Charge (AH)', data: co2Data, yPadding: 25, yStep: 25, stroke: 'var(--orange)', unit: 'AH', dataSelector: (row: any) => row.co2},
+    { key: 'temp', label: 'Temperature (°C)', data: tempData, yPadding: 2, yStep: 2, stroke: 'var(--pink)', unit: '°C', dataSelector: (row: any) => row.temperature },
+    { key: 'humidity', label: 'Humidity (%)', data: humidData, yPadding: 2, yStep: 2, stroke: 'var(--blue)', unit: '%', dataSelector: (row: any) => row.humidity },
+    { key: 'co2', label: 'CO2 (ppm)', data: co2Data, yPadding: 25, yStep: 25, stroke: 'var(--green)', unit: 'ppm', dataSelector: (row: any) => row.co2 },
+    { key: 'o2', label: 'O2 (%)', data: o2Data, yPadding: 2, yStep: 2, stroke: 'var(--orange)', unit: '%', dataSelector: (row: any) => row.o2 },
   ];
 
   const [visibleGraphs, setVisibleGraphs] = useState(
@@ -42,15 +43,15 @@ export default function EnvironmentTab({scd}: EnvironmentalTabProps) {
         {dropDownOpen && (
           <div className="dropdown-menu">
             {graphs.map(graph => (
-            <label key={graph.key} className="checkbox-label">
-              <input 
-                type="checkbox" 
-                checked={visibleGraphs[graph.key]} 
-                onChange={() => toggleGraph(graph.key)}
-              />
-              <span className="checkmark"></span>
+              <label key={graph.key} className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={visibleGraphs[graph.key]}
+                  onChange={() => toggleGraph(graph.key)}
+                />
+                <span className="checkmark"></span>
                 {graph.label}
-            </label>
+              </label>
             ))}
           </div>
         )}
@@ -60,19 +61,19 @@ export default function EnvironmentTab({scd}: EnvironmentalTabProps) {
       {/* Graphs */}
       <div className="graphs-container">
         {graphs.map(graph => (
-        visibleGraphs[graph.key] && (
-        <div key={graph.key} className="graph-card">
-          <Graph 
-            label={graph.label}
-            data={graph.data}
-            yPadding={graph.yPadding}
-            yStep={graph.yStep}
-            stroke={graph.stroke}
-            unit={graph.unit}
-            dataSelector={graph.dataSelector}
-          />
-        </div>
-        )))}
+          visibleGraphs[graph.key] && (
+            <div key={graph.key} className="graph-card">
+              <Graph
+                label={graph.label}
+                data={graph.data}
+                yPadding={graph.yPadding}
+                yStep={graph.yStep}
+                stroke={graph.stroke}
+                unit={graph.unit}
+                dataSelector={graph.dataSelector}
+              />
+            </div>
+          )))}
       </div>
       {/* Graphs */}
     </div>
