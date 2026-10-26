@@ -9,8 +9,7 @@ export default function GetScidData() {
 
     //useEffect because this runs after the component renders
     useEffect(() => {
-        // Combined 5 second interval for all live updates
-        const interval = setInterval(async () => {
+        const fetchData = async () => {
             // 1. Fetch live data (last 2 mins)
             try {
                 const res = await fetch("/api/data?range=2m");
@@ -33,15 +32,36 @@ export default function GetScidData() {
                 const res = await fetch("/api/errors");
                 if (res.ok) {
                     const json = await res.json();
-                    setErrors(json.map((e: any) => ({
-                        message: e.message,
-                        timestamp: new Date(e.timestamp),
-                    })));
+                    const grouped = new Map<string, ErrorLog>();
+                    for (const e of json) {
+                        const count = typeof e.count === 'number' ? e.count : 1;
+                        const timestamp = new Date(e.timestamp);
+                        const existing = grouped.get(e.message);
+                        if (existing) {
+                            existing.count += count;
+                            if (timestamp > existing.timestamp) {
+                                existing.timestamp = timestamp;
+                            }
+                        } else {
+                            grouped.set(e.message, {
+                                message: e.message,
+                                timestamp,
+                                count,
+                            });
+                        }
+                    }
+                    setErrors(Array.from(grouped.values()));
                 }
             } catch {
                 //silently ignore error-fetch failures
             }
-        }, 5000); // Poll strictly every 5 seconds
+        };
+
+        // Fetch immediately on mount so the screen isn't blank
+        fetchData();
+
+        // Poll every 3 seconds for snappy updates
+        const interval = setInterval(fetchData, 3000);
 
         return () => clearInterval(interval); // cleanup on unmount
     }, []);

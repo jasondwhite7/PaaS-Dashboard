@@ -34,3 +34,6 @@ yarn-error.log*
 *.elf
 .vscode/arduino.json
 build/
+
+# WiFi secrets
+*secrets.h

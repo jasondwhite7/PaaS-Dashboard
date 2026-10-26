@@ -1,9 +1,9 @@
 //SCD41 data
 export interface ScidData {
-    temperature: number;
-    humidity: number;
-    co2: number;
-    o2: number;
+    temperature: number | null;
+    humidity: number | null;
+    co2: number | null;
+    o2: number | null;
 }
 
 export interface ScidSample extends ScidData {
@@ -13,16 +13,17 @@ export interface ScidSample extends ScidData {
 // Shape of a row coming from the backend database API
 export interface SensorRow {
     id: number;
-    temperature: number;
-    humidity: number;
-    co2: number;
-    o2: number;
+    temperature: number | null;
+    humidity: number | null;
+    co2: number | null;
+    o2: number | null;
     timestamp: string; // ISO 8601 string from SQLite
 }
 
 export interface ErrorLog {
     message: string;
     timestamp: Date;
+    count: number;
 }
 
 export interface GraphPoint {

@@ -14,7 +14,7 @@ import { GraphPoint, SensorRow, TimeRangeKey } from "../types";
  */
 export default function useHistoricalData(
     timeRange: TimeRangeKey,
-    selector: (row: SensorRow) => number,
+    selector: (row: SensorRow) => number | null,
     enabled: boolean
 ): GraphPoint[] {
     const [data, setData] = useState<GraphPoint[]>([]);
@@ -47,10 +47,15 @@ export default function useHistoricalData(
                 if (!res.ok) return;
 
                 const json: SensorRow[] = await res.json();
-                const points: GraphPoint[] = json.map(row => ({
-                    time: new Date(row.timestamp),
-                    value: selector(row),
-                }));
+                const points: GraphPoint[] = json
+                    .map(row => {
+                        const val = selector(row);
+                        return {
+                            time: new Date(row.timestamp),
+                            value: (typeof val === 'number' && !isNaN(val)) ? val : null as any,
+                        };
+                    })
+                    .filter(p => p.value !== null && !isNaN(p.value));
 
                 setData(points);
             } catch {

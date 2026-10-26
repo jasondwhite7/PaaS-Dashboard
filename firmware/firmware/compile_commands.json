@@ -27,6 +27,7 @@
       "-I/Users/jason/Documents/Arduino/libraries/Sensirion_Core/src",
       "-I/Users/jason/Documents/Arduino/libraries/ArduinoJson/src",
       "-I/Users/jason/Documents/Arduino/libraries/DFRobot_OxygenSensor/src",
+      "-I/Users/jason/Documents/Arduino/libraries/ArduinoMqttClient/src",
       "-DCM4_BINARY_START=0x60000000",
       "-DCM4_BINARY_END=0x60040000",
       "-DCM4_RAM_END=0x60080000",

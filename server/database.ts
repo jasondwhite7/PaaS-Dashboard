@@ -9,10 +9,10 @@ let db: Database.Database;
 // ── Types ───────────────────────────────────────────────────────────────
 export interface SensorRow {
     id: number;
-    temperature: number;
-    humidity: number;
-    co2: number;
-    o2: number;
+    temperature: number | null;
+    humidity: number | null;
+    co2: number | null;
+    o2: number | null;
     timestamp: string; // ISO 8601 string
 }
 
@@ -20,42 +20,52 @@ export interface SensorRow {
 
 /**
  * Initialize the database connection and create the table if it doesn't exist.
- * 
- * CREATE TABLE creates the "sensor_data" table:
- *   - id: auto-incrementing number (each row gets a unique ID)
- *   - temperature, humidity, co2, o2: decimal numbers (REAL = floating point)
- *   - timestamp: date/time stored as text in ISO 8601 format
- * 
- * "IF NOT EXISTS" means it only creates the table the first time.
- * After that, it just opens the existing database file.
  */
 export function initDatabase(): void {
     db = new Database(DB_PATH);
 
     // Enable WAL mode for better performance with concurrent reads/writes
-    // (WAL = Write-Ahead Logging — lets reads happen while writes are happening)
     db.pragma('journal_mode = WAL');
 
     db.exec(`
         CREATE TABLE IF NOT EXISTS sensor_data (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            temperature REAL NOT NULL,
-            humidity REAL NOT NULL,
-            co2 REAL NOT NULL,
+            temperature REAL,
+            humidity REAL,
+            co2 REAL,
             o2 REAL,
             timestamp TEXT NOT NULL
         )
     `);
 
+    // Migration: ensure nullable columns if table was created with NOT NULL constraints
+    const columns = db.pragma('table_info(sensor_data)') as { name: string; notnull: number }[];
+    const tempCol = columns.find(col => col.name === 'temperature');
+    if (tempCol && tempCol.notnull === 1) {
+        db.exec(`
+            CREATE TABLE IF NOT EXISTS sensor_data_migrated (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                temperature REAL,
+                humidity REAL,
+                co2 REAL,
+                o2 REAL,
+                timestamp TEXT NOT NULL
+            );
+            INSERT INTO sensor_data_migrated (id, temperature, humidity, co2, o2, timestamp)
+                SELECT id, temperature, humidity, co2, o2, timestamp FROM sensor_data;
+            DROP TABLE sensor_data;
+            ALTER TABLE sensor_data_migrated RENAME TO sensor_data;
+        `);
+    }
+
     // Migration: ensure o2 column exists in existing databases
-    const columns = db.pragma('table_info(sensor_data)') as { name: string }[];
-    const hasO2 = columns.some(col => col.name === 'o2');
+    const updatedColumns = db.pragma('table_info(sensor_data)') as { name: string }[];
+    const hasO2 = updatedColumns.some(col => col.name === 'o2');
     if (!hasO2) {
         db.exec('ALTER TABLE sensor_data ADD COLUMN o2 REAL');
     }
 
     // Create an index on timestamp for faster time-range queries
-    // Think of it like a book's index — helps find rows by date quickly
     db.exec(`
         CREATE INDEX IF NOT EXISTS idx_timestamp ON sensor_data (timestamp)
     `);
@@ -78,12 +88,13 @@ export function initDatabase(): void {
 
 /**
  * Insert a single sensor reading into the database.
- * 
- * This is a "prepared statement" — it's like a template with ? placeholders.
- * SQLite fills in the values safely (prevents SQL injection attacks).
- * .run() executes the statement with the given values.
  */
-export function insertReading(temperature: number, humidity: number, co2: number, o2: number | null): void {
+export function insertReading(
+    temperature: number | null,
+    humidity: number | null,
+    co2: number | null,
+    o2: number | null
+): void {
     const stmt = db.prepare(`
         INSERT INTO sensor_data (temperature, humidity, co2, o2, timestamp)
         VALUES (?, ?, ?, ?, ?)

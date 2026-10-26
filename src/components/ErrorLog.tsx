@@ -37,7 +37,10 @@ export default function ErrorLog({errors, clearError, clearAllErrors}: ErrorLogP
                             )}
                             {errors.map((error, index) => (
                                 <div key={index} className="error-item">
-                                    <span>[{error.timestamp.toLocaleTimeString()}] {error.message}</span>
+                                    <span>
+                                        [{error.timestamp.toLocaleTimeString()}] {error.message}
+                                        {error.count && error.count > 1 ? ` (${error.count})` : ''}
+                                    </span>
                                     <button className="dismiss-btn" onClick={() => {
                                         clearError(index);
                                         if (errors.length === 1) {

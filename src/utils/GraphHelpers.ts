@@ -3,30 +3,82 @@ import { GraphPoint } from "../types";
 export const roundUp = (value: number, step: number) => Math.ceil(value / step) * step;
 export const roundDown = (value: number, step: number) => Math.floor(value / step) * step;
 
-export const getYDomain = (data: GraphPoint[], padding: number, step: number) => {
+/**
+ * Calculates evenly-spaced Y-axis domain, step size, and ticks capped at maxTicks (default 5).
+ * Guarantees all ticks and bounds are clean multiples of baseStep.
+ */
+export const calculateYAxis = (
+    data: GraphPoint[],
+    baseStep: number,
+    maxTicks: number = 5
+): { domain: [number, number]; step: number; ticks: number[] } => {
+    const stepUnit = baseStep > 0 ? baseStep : 1;
+    const maxIntervals = Math.max(1, maxTicks - 1); // 5 ticks = 4 intervals
+
     if (data.length === 0) {
-        return [0, padding];
+        const defaultMax = stepUnit * maxIntervals;
+        const ticks: number[] = [];
+        for (let i = 0; i <= maxIntervals; i++) {
+            ticks.push(Number((i * stepUnit).toFixed(4)));
+        }
+        return { domain: [0, defaultMax], step: stepUnit, ticks };
     }
+
     const points = data.map(d => d.value);
-    // Remove padding before rounding to keep the chart tight
-    const min = roundDown(Math.min(...points), step);
-    const max = roundUp(Math.max(...points), step);
-    
-    // If min and max are the same (flat line), add the original padding range
+    const dataMin = Math.min(...points);
+    const dataMax = Math.max(...points);
+
+    // Initial boundary rounding to baseStep
+    let min = roundDown(dataMin, stepUnit);
+    let max = roundUp(dataMax, stepUnit);
+
+    // Flat line handling (constant values)
     if (min === max) {
-        return [min - step, max + step];
+        min = Math.max(0, min - stepUnit * 2);
+        max = max + stepUnit * 2;
     }
-    
-    return [min, max];
-}
+
+    const range = max - min;
+    const intervals = Math.round(range / stepUnit);
+
+    let step = stepUnit;
+    if (intervals > maxIntervals) {
+        // Calculate the minimum multiple of baseStep needed to span the range in <= 4 intervals
+        step = Math.ceil((range / maxIntervals) / stepUnit) * stepUnit;
+        const targetSpan = maxIntervals * step;
+        const diff = targetSpan - range;
+
+        // Distribute extra span in clean steps of baseStep
+        const diffBelow = Math.floor((diff / 2) / stepUnit) * stepUnit;
+        const diffAbove = diff - diffBelow;
+
+        min = min - diffBelow;
+        max = max + diffAbove;
+    }
+
+    const count = Math.round((max - min) / step);
+    const ticks: number[] = [];
+    for (let i = 0; i <= count; i++) {
+        ticks.push(Number((min + i * step).toFixed(4)));
+    }
+
+    return { domain: [min, max], step, ticks };
+};
+
+export const getYDomain = (data: GraphPoint[], padding: number, step: number) => {
+    return calculateYAxis(data, step, 5).domain;
+};
 
 export const generateYTicks = (min: number, max: number, step: number) => {
     const ticks = [];
-    for (let i = min; i <= max; i += step) {
-        ticks.push(i);
+    if (step <= 0 || min >= max) return [min];
+    const count = Math.round((max - min) / step);
+    for (let i = 0; i <= count; i++) {
+        const val = Number((min + i * step).toFixed(4));
+        ticks.push(val);
     }
     return ticks;
-}
+};
 
 export const generateXTicks = (data: GraphPoint[], numTicks: number, displayTime: number): number[] => {
     if (data.length === 0) return [];

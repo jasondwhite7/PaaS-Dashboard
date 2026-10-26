@@ -63,6 +63,15 @@ body {
   margin: 0px 10px 10px 0px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+.graph-card-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  min-height: 36px;
 }
 
 .error-section {
@@ -195,6 +204,35 @@ body {
 
 /* When checked, fill it green */
 .checkbox-label input[type="checkbox"]:checked + .checkmark {
+  background-color: var(--green);
+  border-color: var(--green);
+}
+
+/* Small temperature unit toggle checkbox */
+.temp-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  user-select: none;
+  margin-left: 2px;
+}
+
+.temp-toggle-label input[type="checkbox"] {
+  display: none;
+}
+
+.temp-toggle-label .checkmark {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--background4);
+  border-radius: 3px;
+  background-color: transparent;
+  transition: all 0.2s ease;
+}
+
+.temp-toggle-label input[type="checkbox"]:checked + .checkmark {
   background-color: var(--green);
   border-color: var(--green);
 }

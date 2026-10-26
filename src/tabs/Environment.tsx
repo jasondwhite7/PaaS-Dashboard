@@ -71,6 +71,8 @@ export default function EnvironmentTab({ scd }: EnvironmentalTabProps) {
                 stroke={graph.stroke}
                 unit={graph.unit}
                 dataSelector={graph.dataSelector}
+                isTemperature={graph.key === 'temp'}
+                rawHistory={scd}
               />
             </div>
           )))}
