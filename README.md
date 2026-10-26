@@ -129,8 +129,8 @@ Edit `firmware/firmware/secrets.h`:
 #define MQTT_BROKER "192.168.1.100"
 #define MQTT_PORT 1883
 
-#define MQTT_TOPIC "paas-dashboard-jason/sensors/readings"
-#define MQTT_STATUS_TOPIC "paas-dashboard-jason/sensors/status"
+#define MQTT_TOPIC "paas/sensors/readings"
+#define MQTT_STATUS_TOPIC "paas/sensors/status"
 ```
 
 > [!NOTE]
@@ -185,8 +185,8 @@ The backend Express server (`server/index.ts`) connects to your MQTT broker and 
 | Variable            | Default Value                           | Description                    |
 | ------------------- | --------------------------------------- | ------------------------------ |
 | `MQTT_BROKER_URL`   | `mqtt://localhost:1883`                 | MQTT broker connection URL     |
-| `MQTT_TOPIC`        | `paas-dashboard-jason/sensors/readings` | Topic for incoming sensor data |
-| `MQTT_STATUS_TOPIC` | `paas-dashboard-jason/sensors/status`   | Topic for Arduino LWT / status |
+| `MQTT_TOPIC`        | `paas/sensors/readings`                 | Topic for incoming sensor data |
+| `MQTT_STATUS_TOPIC` | `paas/sensors/status`                   | Topic for Arduino LWT / status |
 | `PORT`              | `3001`                                  | Backend HTTP API port          |
 
 **Database:**
